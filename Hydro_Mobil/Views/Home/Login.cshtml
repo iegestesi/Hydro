@@ -1,0 +1,26 @@
+﻿@using Hydro_Mobil.Models;
+<div class="wrapper">
+    <div class="container">
+        <h1>Welcome</h1>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "login-form", action = "/Login" }))
+{
+            <input type="text" placeholder="Username" name="UserName" id="UserName">
+            <input type="password" placeholder="Password" name="PassWord" id="PassWord">
+            <input type="submit" name="button" id="button" value="Login">
+}
+    </div>
+
+    <ul class="bg-bubbles">
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+    </ul>
+</div>

@@ -1,0 +1,33 @@
+﻿
+@{
+    ViewBag.Title = "Two Factor Authentication";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="~/scripts/clientMessages.js"></script>
+<div class="wrapper">
+    <div class="container">
+        <h1>Hydro Aut</h1>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "login-form", action = "/MobilAuth" }))
+{ 
+            <input type="text" value="@ViewBag.Message" disabled name="GenerateMessage" id="GenerateMessage">
+            <input type="submit" name="button" id="button" value="Authentication">
+}
+    </div>
+    <ul class="bg-bubbles">
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+    </ul>
+</div>
+<div>@ViewBag.Message</div>
+
+
