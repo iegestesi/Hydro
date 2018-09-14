@@ -1,0 +1,33 @@
+﻿@model IEnumerable<Hydro_Mobil.Models.Members>
+@{
+    ViewBag.Title = "Auth List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script language="javascript">
+    function confirmDel() {
+        var agree = confirm("Hydro 2fa Silinecektir Emin Misiniz?");
+        if (agree) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+</script>
+
+<div style="color:black;">
+    <h1>Hydro Mobil List</h1>
+
+    @foreach (var item in Model)
+    {
+        <div>@item.UserName</div>
+        <div>@item.PassWord</div>
+            <div>@item.HydroID</div>
+            <div>
+                <a href="/MobilAutListDelete?ID=1" onclick="return confirmDel();">
+                    <img src=~/Content/css/Delete.png width="15" height="15" border="0" />
+                </a>
+            </div>
+            <div><a href="/MobilAdd">Geri Gel</a></div>
+    }
+</div>

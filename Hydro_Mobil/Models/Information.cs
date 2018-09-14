@@ -21,31 +21,44 @@ namespace Hydro_Mobil.Models
 
             return admList.ToList();
         }
-
-        public static bool AutAddSandBox(string strHydroID,out string strMessage)
+        public static bool GetAccesToken(string strDemo, out string strMessage)
         {
-            strMessage = "";
             bool blnResult = false;
             try
             {
-                System.Net.WebRequest request = System.Net.HttpWebRequest.Create(cSettings[0].PostSandBox);
-                request.Method = "POST";
-                request.ContentType = "application/json";
-                request.Headers.Add("Authorization", "Bearer " + cSettings[0].AccesToken);
+                string strClientSecretID = cSettings[0].ClientID + ":" + cSettings[0].ClientSecret;
+                strMessage = "";
+                string strUrl = "";
 
-                using (System.IO.StreamWriter tStreamWriter = new System.IO.StreamWriter(request.GetRequestStream()))
+                if (strDemo == "SandBox")
                 {
-                    tStreamWriter.Write(new System.Web.Script.Serialization.JavaScriptSerializer().Serialize(new
-                    {
-                        hydro_id = strHydroID,
-                        application_id = cSettings[0].ApplicationID
-                    }));
+                    strUrl = cSettings[0].UrlSandBoxToken;
                 }
-                using (WebResponse response = request.GetResponse())
+                else
                 {
-                    using (StreamReader streamReader = new StreamReader(response.GetResponseStream()))
+                    strUrl = cSettings[0].UrlApiToken;
+                }
+
+                System.Net.WebRequest request = System.Net.HttpWebRequest.Create(strUrl);
+                request.Method = "POST";
+                request.ContentType = "application/json; charset=UTF-8";
+
+                CredentialCache mycache = new CredentialCache();
+                mycache.Add(new Uri(strUrl), "Basic", new NetworkCredential(cSettings[0].ClientID, cSettings[0].ClientSecret));
+                request.Credentials = mycache;
+                request.Headers.Add("Authorization", "Basic " + Convert.ToBase64String(new ASCIIEncoding().GetBytes(strClientSecretID)));
+
+                Stream postStream = request.GetRequestStream();
+                postStream.Flush();
+                postStream.Close();
+
+                using (System.Net.WebResponse response = request.GetResponse())
+                {
+                    using (System.IO.StreamReader streamReader = new System.IO.StreamReader(response.GetResponseStream()))
                     {
-                        strMessage = GenerateMessage();
+                        dynamic jsonResponseText = streamReader.ReadToEnd();
+                        RefreshTokenResultJSON jsonResult = new System.Web.Script.Serialization.JavaScriptSerializer().Deserialize(jsonResponseText, typeof(RefreshTokenResultJSON));
+                        cSettings[0].AccesToken = jsonResult.access_token;
                     }
                 }
                 blnResult = true;
@@ -58,13 +71,24 @@ namespace Hydro_Mobil.Models
 
             return blnResult;
         }
-        public static bool AutAddApi(string strHydroID, out string strMessage)
+        public static bool AutAdd(string strHydroID, string strDemo, out string strMessage)
         {
             strMessage = "";
             bool blnResult = false;
             try
             {
-                System.Net.WebRequest request = System.Net.HttpWebRequest.Create(cSettings[0].PostApi);
+                string strUrl = "";
+
+                if (strDemo == "SandBox")
+                {
+                    strUrl = cSettings[0].PostSandBox;
+                }
+                else
+                {
+                    strUrl = cSettings[0].PostApi;
+                }
+
+                System.Net.WebRequest request = System.Net.HttpWebRequest.Create(strUrl);
                 request.Method = "POST";
                 request.ContentType = "application/json";
                 request.Headers.Add("Authorization", "Bearer " + cSettings[0].AccesToken);
@@ -107,94 +131,25 @@ namespace Hydro_Mobil.Models
 
             return strResult;
         }
-        public static bool GetAccesTokenSandBox(out string strMessage)
-        {
-            bool blnResult = false;
-            try
-            {
-                string strClientSecretID = cSettings[0].ClientID + ":" + cSettings[0].ClientSecret;
-                strMessage = "";
-
-                System.Net.WebRequest request = System.Net.HttpWebRequest.Create(cSettings[0].UrlSandBoxToken);
-                request.Method = "POST";
-                request.ContentType = "application/json; charset=UTF-8";
-
-                CredentialCache mycache = new CredentialCache();
-                mycache.Add(new Uri(cSettings[0].UrlSandBoxToken), "Basic", new NetworkCredential(cSettings[0].ClientID, cSettings[0].ClientSecret));
-                request.Credentials = mycache;
-                request.Headers.Add("Authorization", "Basic " + Convert.ToBase64String(new ASCIIEncoding().GetBytes(strClientSecretID)));
-
-                Stream postStream = request.GetRequestStream();
-                postStream.Flush();
-                postStream.Close();
-
-                using (System.Net.WebResponse response = request.GetResponse())
-                {
-                    using (System.IO.StreamReader streamReader = new System.IO.StreamReader(response.GetResponseStream()))
-                    {
-                        dynamic jsonResponseText = streamReader.ReadToEnd();
-                        RefreshTokenResultJSON jsonResult = new System.Web.Script.Serialization.JavaScriptSerializer().Deserialize(jsonResponseText, typeof(RefreshTokenResultJSON));
-                        cSettings[0].AccesToken = jsonResult.access_token;
-                    }
-                }
-                blnResult = true;
-            }
-            catch (Exception ex)
-            {
-                strMessage = ex.Message.ToString();
-                blnResult = false;
-            }
-
-            return blnResult;
-        }
-        public static bool GetAccesTokenApi(out string strMessage)
-        {
-            bool blnResult = false;
-            try
-            {
-                string strClientSecretID = cSettings[0].ClientID + ":" + cSettings[0].ClientSecret;
-                strMessage = "";
-
-                System.Net.WebRequest request = System.Net.HttpWebRequest.Create(cSettings[0].UrlApiToken);
-                request.Method = "POST";
-                request.ContentType = "application/json; charset=UTF-8";
-
-                CredentialCache mycache = new CredentialCache();
-                mycache.Add(new Uri(cSettings[0].UrlApiToken), "Basic", new NetworkCredential(cSettings[0].ClientID, cSettings[0].ClientSecret));
-                request.Credentials = mycache;
-                request.Headers.Add("Authorization", "Basic " + Convert.ToBase64String(new ASCIIEncoding().GetBytes(strClientSecretID)));
-
-                Stream postStream = request.GetRequestStream();
-                postStream.Flush();
-                postStream.Close();
-
-                using (System.Net.WebResponse response = request.GetResponse())
-                {
-                    using (System.IO.StreamReader streamReader = new System.IO.StreamReader(response.GetResponseStream()))
-                    {
-                        dynamic jsonResponseText = streamReader.ReadToEnd();
-                        RefreshTokenResultJSON jsonResult = new System.Web.Script.Serialization.JavaScriptSerializer().Deserialize(jsonResponseText, typeof(RefreshTokenResultJSON));
-                        cSettings[0].AccesToken = jsonResult.access_token;
-                    }
-                }
-                blnResult = true;
-            }
-            catch (Exception ex)
-            {
-                strMessage = ex.Message.ToString();
-                blnResult = false;
-            }
-
-            return blnResult;
-        }
-        public static bool GetVerifyMessageSandBox(string strHydroID,string strMessage,out string strNotMessage)
+        public static bool GetVerifyMessage(string strHydroID, string strDemo, string strMessage, out string strNotMessage)
         {
             bool blnResult = false;
             strNotMessage = "";
 
+            string strUrlMessage = "";
+
+            if (strDemo == "SandBox")
+            {
+                strUrlMessage = cSettings[0].ApiSandBoxVerify;
+            }
+            else
+            {
+                strUrlMessage = cSettings[0].ApiGetVerify;
+            }
+
             try
             {
-                string strUrl = cSettings[0].ApiSandBoxVerify + "?message=" + strMessage + "&hydro_id=" + strHydroID + "&application_id=" + cSettings[0].ApplicationID;
+                string strUrl = strUrlMessage + "?message=" + strMessage + "&hydro_id=" + strHydroID + "&application_id=" + cSettings[0].ApplicationID;
                 System.Net.WebRequest request = System.Net.HttpWebRequest.Create(strUrl);
                 request.Method = "GET";
                 request.ContentType = "application/json";
@@ -223,16 +178,25 @@ namespace Hydro_Mobil.Models
 
             return blnResult;
         }
-        public static bool GetVerifyMessageApi(string strHydroID, string strMessage, out string strNotMessage)
+        public static bool GetDeleteApi(string strHydroID, string strDemo, out string strMessage)
         {
+            strMessage = "";
             bool blnResult = false;
-            strNotMessage = "";
-
             try
             {
-                string strUrl = cSettings[0].ApiGetVerify + "?message=" + strMessage + "&hydro_id=" + strHydroID + "&application_id=" + cSettings[0].ApplicationID;
+                string strUrlMessage = "";
+
+                if (strDemo == "SandBox")
+                {
+                    strUrlMessage = cSettings[0].PostSandBox;
+                }
+                else
+                {
+                    strUrlMessage = cSettings[0].PostApi;
+                }
+                string strUrl = strUrlMessage + "?message=" + strMessage + "&hydro_id=" + strHydroID + "&application_id=" + cSettings[0].ApplicationID;
                 System.Net.WebRequest request = System.Net.HttpWebRequest.Create(strUrl);
-                request.Method = "GET";
+                request.Method = "DELETE";
                 request.ContentType = "application/json";
                 request.Headers.Add("Authorization", "Bearer " + cSettings[0].AccesToken);
 
@@ -240,45 +204,19 @@ namespace Hydro_Mobil.Models
                 {
                     using (StreamReader streamReader = new StreamReader(response.GetResponseStream()))
                     {
-                        strNotMessage = streamReader.ReadToEnd();
+                        strMessage = "Succes";
                     }
                 }
-
                 blnResult = true;
             }
             catch (Exception ex)
             {
-                strNotMessage = ex.Message.ToString();
+                strMessage = ex.Message.ToString();
                 blnResult = false;
             }
 
             return blnResult;
         }
-        //public static bool GetDeleteApi()
-        //{
-        //    var client = new RestClient(strUrlSandbox);// + "?hydro_id=" + teHydroUserName.Text + "&application_id=" + strApplicationID);
-
-        //    //ParaMeters p = new ParaMeters { hydro_id = teHydroUserName.Text, application_id = strApplicationID };
-
-        //    var request = new RestRequest(Method.DELETE);
-        //    request.AddHeader("authorization", "Bearer " + strAccesToken + "");
-
-        //    //var body = new { hydro_id = teHydroUserName.Text, application_id = strApplicationID };
-        //    //request.AddParameter("application/json", body, ParameterType.RequestBody);
-        //    request.AddParameter("hydro_id", teHydroUserName.Text);
-        //    request.AddParameter("application_id", strApplicationID);
-        //    //request.AddJsonBody(body);
-        //    IRestResponse response = client.Execute(request);
-
-        //    if (string.IsNullOrEmpty(response.Content.ToString()))
-        //    {
-        //        lblError.Text = "Silme Başarılı";
-        //    }
-        //    else
-        //    {
-        //        lblError.Text = response.Content.ToString();
-        //    }
-        //}
 
         public static List<csSettings> cSettings = new List<csSettings>
             {
@@ -307,7 +245,7 @@ namespace Hydro_Mobil.Models
                     MembersID = 1,
                     UserName = "Mehmet",
                     PassWord = "1",
-                    HydroID = ""
+                    HydroID = "test",
                     Auth = false
                 }
             };

@@ -8,6 +8,8 @@ namespace Hydro_Mobil.Models
 {
     public class LoginProfil
     {
+        public int MembersID { get; set; }
+
         [Required(ErrorMessage = "Please Enter Your UserName.")]
         [Display(Name = "UserName")]
         public string UserName { get; set; }
@@ -17,6 +19,7 @@ namespace Hydro_Mobil.Models
         public string Password { get; set; }
 
         public bool Auth { get; set; }
+        public string HydroID { get; set; }
 
     }
 }
