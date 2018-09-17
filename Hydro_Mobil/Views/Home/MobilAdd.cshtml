@@ -3,31 +3,32 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="wrapper">
-    <div class="container">
-        <h1>Welcome</h1>
+        <h1>Two Factor Authentication</h1>
+
+<p>@ViewBag.ErrorMessage</p>
 
         @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "login-form", action = "/MobilAdd" }))
         {
-            <input type="text" placeholder="Hydro ID" name="HydroID" id="HydroID">
-            <select name="ApiSandBox" id="ApiSandBox" class="option">
-                <option value="SandBox">SandBox</option>
-                <option value="Api">Api</option>
-            </select>
-            <input type="submit" name="button" id="button" value="Mobil Auth Add">
+            <table width="435" height="100" border="0">
+            <tr>
+                <td width="137">HydroID</td>
+                <td width="11" align="center">:</td>
+                <td width="265"><input type="text" placeholder="Hydro ID" name="HydroID" id="HydroID"></td>
+            </tr>
+            <tr>
+                <td>Api Selection</td>
+                <td align="center">:</td>
+                <td>
+                    <select name="ApiSandBox" id="ApiSandBox" class="option">
+                        <option value="SandBox">SandBox</option>
+                        <option value="Api">Api</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3"><input type="submit" name="button" id="button" value="Mobil Auth Add"></td>
+            </tr>
+        </table>
         }
-    </div>
-    <ul class="bg-bubbles">
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-    </ul>
-</div>
+
 

@@ -22,6 +22,7 @@ namespace Hydro_Mobil.Models
         public string ApiGetVerify { get; set; }
         public string ApiSandBoxVerify { get; set; }
         public string Message { get; set; }
+        public string ErrorMessage { get; set; }
         public string Demo { get; set; }
     }
 }

@@ -1,0 +1,18 @@
+﻿
+@{
+    ViewBag.Title = "Two Factor Authentication";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+        <h1>Hydro Aut</h1>
+<p>@ViewBag.ErrorMessage</p>
+
+        @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "login-form", action = "/MobilAuthControl" }))
+        {
+            <input type="text" value="@ViewBag.Message" disabled name="GenerateMessage" id="GenerateMessage">
+            <input type="submit" name="button" id="button" value="Authentication">
+        }
+
+
+

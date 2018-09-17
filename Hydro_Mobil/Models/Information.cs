@@ -11,15 +11,23 @@ using System.Web.Configuration;
 
 namespace Hydro_Mobil.Models
 {
-    public static class Information
+    public class Information
     {
-        public static List<Members> LoginKontrol(string strUserName, string strPassword)
+        TablolarContext db = new TablolarContext();
+        public List<Members> LoginKontrol(string strUserName, string strPassword)
         {
-            var admList = from adm in cMembers
-                          where adm.UserName == strUserName && adm.PassWord == strPassword
-                          select adm;
+            var memList = from mem in db.Member
+                          where mem.UserName == strUserName && mem.PassWord == strPassword
+                          select mem;
 
-            return admList.ToList();
+            return memList.ToList();
+        }
+        public void MembersHydroEdit(int dMembersID, string strHydroID, bool blnAuth)
+        {
+            Members memEdit = (from g in db.Member where g.MembersID == dMembersID select g).FirstOrDefault();
+            memEdit.HydroID = strHydroID;
+            memEdit.Auth = blnAuth;
+            db.SaveChanges();
         }
         public static bool GetAccesToken(string strDemo, out string strMessage)
         {
@@ -131,7 +139,7 @@ namespace Hydro_Mobil.Models
 
             return strResult;
         }
-        public static bool GetVerifyMessage(string strHydroID, string strDemo, string strMessage, out string strNotMessage)
+        public bool GetVerifyMessage(string strHydroID, string strDemo, string strMessage, out string strNotMessage)
         {
             bool blnResult = false;
             strNotMessage = "";
@@ -163,8 +171,6 @@ namespace Hydro_Mobil.Models
                         string[] strSplit = strNotMessage.Split(',');
                         strNotMessage = strSplit[0].ToString();
                         strNotMessage = strNotMessage.Replace("{", "").Replace("\"", "").Replace(":", " ");
-                        cMembers[0].HydroID = strHydroID;
-                        cMembers[0].Auth = true;
                     }
                 }
 
@@ -235,18 +241,7 @@ namespace Hydro_Mobil.Models
                     ApiGetVerify = "https://api.hydrogenplatform.com/hydro/v1/verify_signature",
                     ApiSandBoxVerify = "https://sandbox.hydrogenplatform.com/hydro/v1/verify_signature",
                     Message = "",
-                    Demo = ""
-                }
-            };
-
-        public static List<Members> cMembers = new List<Members>
-            {
-                new Models.Members {
-                    MembersID = 1,
-                    UserName = "Mehmet",
-                    PassWord = "1",
-                    HydroID = "test",
-                    Auth = false
+                    Demo = "SandBox"
                 }
             };
     }

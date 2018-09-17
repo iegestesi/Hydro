@@ -5,21 +5,32 @@ using System.Linq;
 using System.Web;
 using System.Web.Configuration;
 using System.Web.Mvc;
+using System.Web.Security;
 
 namespace Hydro_Mobil.Controllers
 {
     public class HomeController : Controller
     {
         LoginProfil users = new LoginProfil();
+        Information dbs = new Information();
+        TablolarContext db = new TablolarContext();
         HttpCookie LoginCookie = new HttpCookie("HydroMobil");
         string strApiSandBox = "";
         string strMessage = "";
 
         public ActionResult Index()
         {
-            LoginCookie.Expires = DateTime.Now.AddDays(-1);
-            Response.Cookies.Add(LoginCookie);
-            return View();
+            LoginCookie = Request.Cookies["HydroMobil"];
+
+            if (LoginCookie == null)
+            {
+                ViewBag.Title = "Login";
+                return View("Login");
+            }
+            else
+            {
+                return RedirectToAction("MobilAutList");
+            }
         }
 
         public ActionResult Login()
@@ -33,17 +44,19 @@ namespace Hydro_Mobil.Controllers
             }
             else
             {
-                return RedirectToAction("MobilAdd");
+                return RedirectToAction("MobilAutList");
             }
         }
+
         [HttpPost]
-        public ActionResult Login(FormCollection frm, LoginProfil user)
+        [ValidateInput(false)]
+        public ActionResult Login(LoginProfil user)
         {
             if (ModelState.IsValid)
             {
-                var Kontrol = Information.LoginKontrol(frm["UserName"].ToString(), frm["Password"].ToString()).ToList();
+                var Kontrol = dbs.LoginKontrol(user.UserName, user.Password).ToList();
 
-                if (Kontrol != null)
+                if (Kontrol.Count > 0)
                 {
                     foreach (var item in Kontrol)
                     {
@@ -63,22 +76,75 @@ namespace Hydro_Mobil.Controllers
                     Response.Cookies.Add(LoginCookie);
 
                     ViewBag.Title = "Hydro Mobil";
+
                     if (Convert.ToBoolean(user.Auth.ToString()))
                     {
-                        return RedirectToAction("MobilAuth");
+                        return RedirectToAction("MobilAuthControl");
                     }
                     else
                     {
-                        return RedirectToAction("MobilAdd");
+                        return RedirectToAction("MobilAutList");
                     }
                 }
                 else
                 {
-                    ViewBag.Title = "Hydro Mobil Login";
-                    return RedirectToAction("Login");
+                    return View();
                 }
             }
-            return RedirectToAction("Index");
+            return View(user);
+        }
+
+        public ActionResult MobilAuthControl()
+        {
+            if (string.IsNullOrEmpty(Information.cSettings[0].Message.ToString()))
+            {
+                Information.cSettings[0].Message = Information.GenerateMessage();
+                Information.cSettings[0].ErrorMessage = "";
+            }
+            ViewBag.Message = Information.cSettings[0].Message;
+            ViewBag.ErrorMessage = Information.cSettings[0].ErrorMessage;
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateInput(false)]
+        public ActionResult MobilAuthControl(FormCollection frm)
+        {
+            strApiSandBox = Information.cSettings[0].Demo.ToString();
+            LoginCookie = Request.Cookies["HydroMobil"];
+
+            if (ModelState.IsValid)
+            {
+                var Kontrol = dbs.LoginKontrol(LoginCookie["UserName"].ToString(), LoginCookie["Password"].ToString()).ToList();
+                if (Kontrol.Count > 0)
+                {
+                    Information.cSettings[0].Hydro_ID = Kontrol[0].HydroID;
+                }
+
+                if (string.IsNullOrEmpty(Information.cSettings[0].AccesToken))
+                {
+                    Information.GetAccesToken(strApiSandBox, out strMessage);
+                }
+
+                if (dbs.GetVerifyMessage(Information.cSettings[0].Hydro_ID, strApiSandBox, Information.cSettings[0].Message, out strMessage))
+                {
+                    Information.cSettings[0].Message = strMessage;
+                    return RedirectToAction("MobilAutList");
+                }
+                else
+                {
+                    if (Convert.ToBoolean(LoginCookie["Auth"].ToString()))
+                    {
+                        Information.cSettings[0].ErrorMessage = " We were unable to verify the code entered on the blockchain. Please enter again on the Hydro mobile app and re-authenticate below.";
+                        return RedirectToAction("MobilAuthControl");
+                    }
+                    else
+                    {
+                        return RedirectToAction("MobilAutList");
+                    }
+                }
+            }
+            return View();
         }
 
         public ActionResult MobilAdd()
@@ -88,13 +154,14 @@ namespace Hydro_Mobil.Controllers
             if (LoginCookie == null)
             {
                 ViewBag.Title = "Login";
-                return RedirectToAction("Index");
+                return RedirectToAction("Login");
             }
             else
             {
-                return View(Information.cSettings);
+                return View();
             }
         }
+
         [HttpPost]
         [ValidateInput(false)]
         public ActionResult MobilAdd(FormCollection frm)
@@ -107,7 +174,8 @@ namespace Hydro_Mobil.Controllers
                 if (Information.GetAccesToken(strApiSandBox, out strMessage))
                 {
                     Information.cSettings[0].Hydro_ID = frm["HydroID"].ToString();
-                    if (Information.AutAdd(frm["HydroID"].ToString(), strApiSandBox, out strMessage))
+
+                    if (Information.AutAdd(Information.cSettings[0].Hydro_ID, strApiSandBox, out strMessage))
                     {
                         Information.cSettings[0].Message = strMessage;
                         ViewBag.Message = Information.cSettings[0].Message;
@@ -116,15 +184,16 @@ namespace Hydro_Mobil.Controllers
                     }
                     else
                     {
+                        Information.cSettings[0].ErrorMessage = strMessage;
                         return RedirectToAction("MobilAdd");
                     }
                 }
                 else
                 {
-                    return View(Information.cSettings);
+                    return View();
                 }
             }
-            return View(Information.cSettings);
+            return View();
         }
 
         public ActionResult MobilAuth()
@@ -139,7 +208,11 @@ namespace Hydro_Mobil.Controllers
             else
             {
                 ViewBag.Message = Information.cSettings[0].Message;
-                return View(Information.cSettings);
+                if (!string.IsNullOrEmpty(Information.cSettings[0].ErrorMessage) && Information.cSettings[0].ErrorMessage != "Succes")
+                {
+                    ViewBag.ErrorMessage = Information.cSettings[0].ErrorMessage.ToString();
+                }
+                return View();
             }
         }
 
@@ -152,27 +225,41 @@ namespace Hydro_Mobil.Controllers
 
             if (ModelState.IsValid)
             {
-                if (Information.GetVerifyMessage(Information.cSettings[0].Hydro_ID, strApiSandBox, Information.cSettings[0].Message, out strMessage))
+                var Kontrol = dbs.LoginKontrol(LoginCookie["UserName"].ToString(), LoginCookie["Password"].ToString()).ToList();
+                if (Kontrol.Count > 0)
+                {
+                    LoginCookie["Auth"] = Kontrol[0].Auth.ToString();
+                    if (Information.cSettings[0].Hydro_ID.ToString() == "-" || string.IsNullOrEmpty(Information.cSettings[0].Hydro_ID.ToString()))
+                    {
+                        Information.cSettings[0].Hydro_ID = Kontrol[0].HydroID;
+                    }
+                }
+
+                if(string.IsNullOrEmpty(Information.cSettings[0].AccesToken))
+                {
+                    Information.GetAccesToken(strApiSandBox, out strMessage);
+                }
+
+                if (dbs.GetVerifyMessage(Information.cSettings[0].Hydro_ID, strApiSandBox, Information.cSettings[0].Message, out strMessage))
                 {
                     Information.cSettings[0].Message = strMessage;
-                    LoginCookie["Auth"] = "True";
 
-                    Information.cMembers[0].MembersID = 1;
-                    Information.cMembers[0].UserName = LoginCookie["UserName"].ToString();
-                    Information.cMembers[0].PassWord = LoginCookie["PassWord"].ToString();
-                    Information.cMembers[0].HydroID = Information.cSettings[0].Hydro_ID.ToString();
-                    Information.cMembers[0].Auth = Convert.ToBoolean(LoginCookie["Auth"].ToString());
-
-                    return RedirectToAction("MobilAutList", Information.cMembers);
+                    if(!Convert.ToBoolean(LoginCookie["Auth"].ToString()))
+                    {
+                        dbs.MembersHydroEdit(Kontrol[0].MembersID, Information.cSettings[0].Hydro_ID, true);
+                    }
+                    
+                    return RedirectToAction("MobilAutList");
                 }
                 else
                 {
-                    return RedirectToAction("MobilAdd", Information.cSettings);
+                    Information.cSettings[0].ErrorMessage = "We were unable to verify the code entered on the blockchain. Please enter again on the Hydro mobile app and re-authenticate below.";
+                    ViewBag.ErrorMessage = Information.cSettings[0].ErrorMessage.ToString();
+                    return RedirectToAction("MobilAuth");
                 }
             }
-            return View(Information.cSettings);
+            return View();
         }
-
         public ActionResult MobilAutList()
         {
             LoginCookie = Request.Cookies["HydroMobil"];
@@ -180,16 +267,19 @@ namespace Hydro_Mobil.Controllers
             if (LoginCookie == null)
             {
                 ViewBag.Title = "Login";
-                return View("Login");
+                return RedirectToAction("Login");
             }
             else
             {
-                return View(Information.cMembers);
+                ViewBag.Message = Information.cSettings[0].Message;
+                return View(db.Member);
             }
+
         }
         public ActionResult MobilAutListDelete(int ID)
         {
             LoginCookie = Request.Cookies["HydroMobil"];
+
             strApiSandBox = Information.cSettings[0].Demo.ToString();
 
             if (LoginCookie == null)
@@ -203,25 +293,51 @@ namespace Hydro_Mobil.Controllers
                 {
                     if (Information.GetAccesToken(strApiSandBox, out strMessage))
                     {
+                        var Kontrol = dbs.LoginKontrol(LoginCookie["UserName"].ToString(), LoginCookie["Password"].ToString()).ToList();
+                        if (Kontrol.Count > 0)
+                        {
+                            Information.cSettings[0].Hydro_ID = Kontrol[0].HydroID;
+                            users.MembersID = Kontrol[0].MembersID;
+                        }
+
                         if (Information.GetDeleteApi(Information.cSettings[0].Hydro_ID, strApiSandBox, out strMessage))
                         {
-                            Information.cSettings[0].Message = strMessage;
-                            LoginCookie["Auth"] = "False";
-                            Information.cMembers[0].Auth = false;
-                            return RedirectToAction("MobilAdd");
+                            Information.cSettings[0].ErrorMessage = strMessage;
+                            ViewBag.ErrorMessage = Information.cSettings[0].ErrorMessage;
+
+                            dbs.MembersHydroEdit(users.MembersID, "-", false);
+                            return RedirectToAction("MobilAutList");
                         }
                         else
                         {
+                            Information.cSettings[0].ErrorMessage = strMessage;
+                            ViewBag.ErrorMessage = Information.cSettings[0].ErrorMessage;
                             return RedirectToAction("MobilAutList");
                         }
                     }
                     else
                     {
+                        Information.cSettings[0].ErrorMessage = strMessage;
+                        ViewBag.ErrorMessage = Information.cSettings[0].ErrorMessage;
+
                         return RedirectToAction("MobilAutList");
                     }
                 }
             }
             return RedirectToAction("MobilAutList");
+        }
+        public ActionResult LogOff()
+        {
+            LoginCookie["MembersID"] = "0";
+            LoginCookie["UserName"] = "";
+            LoginCookie["Password"] = "";
+            LoginCookie["HydroID"] = "";
+            LoginCookie["Auth"] = "";
+            LoginCookie.Expires = DateTime.Now.AddDays(-1);
+            Response.Cookies.Add(LoginCookie);
+            ViewBag.Title = "Hydro Auth";
+            Information.cSettings[0].Message = "";
+            return RedirectToAction("Login");
         }
     }
 }

@@ -5,7 +5,7 @@
 }
 <script language="javascript">
     function confirmDel() {
-        var agree = confirm("Hydro 2fa Silinecektir Emin Misiniz?");
+        var agree = confirm("Are You Sure That Hydro 2Fa Will Be Deleted?");
         if (agree) {
             return true;
         }
@@ -15,19 +15,41 @@
     }
 </script>
 
-<div style="color:black;">
     <h1>Hydro Mobil List</h1>
+
+<p>@ViewBag.ErrorMessage</p>
 
     @foreach (var item in Model)
     {
-        <div>@item.UserName</div>
-        <div>@item.PassWord</div>
-            <div>@item.HydroID</div>
-            <div>
-                <a href="/MobilAutListDelete?ID=1" onclick="return confirmDel();">
-                    <img src=~/Content/css/Delete.png width="15" height="15" border="0" />
-                </a>
-            </div>
-            <div><a href="/MobilAdd">Geri Gel</a></div>
+            <table width="396" height="150" border="0">
+                <tr>
+                    <td width="72">User Name</td>
+                    <td width="8">:</td>
+                    <td colspan="2">@item.UserName</td>
+                </tr>
+                <tr>
+                    <td>PassWord</td>
+                    <td>:</td>
+                    <td colspan="2">@item.PassWord</td>
+                </tr>
+                <tr>
+                    <td>Hydro 2FA</td>
+                    <td>:</td>
+                    <td width="144">@item.HydroID</td>
+                    <td width="144">
+                    <a href="/MobilAutListDelete?ID=@item.MembersID" onclick="return confirmDel();">
+                    DELETE
+                    </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        @if (!Convert.ToBoolean(item.Auth.ToString()))
+                        {
+                            <a href="/MobilAdd">Auth Add</a>
+                        }
+                    </td>
+                    <td width="144"><a href="/LogOff">Logout</a></td>
+                </tr>
+            </table>
     }
-</div>

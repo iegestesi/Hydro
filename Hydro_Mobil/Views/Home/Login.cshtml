@@ -1,26 +1,26 @@
 ﻿@using Hydro_Mobil.Models;
-<div class="wrapper">
-    <div class="container">
+@model Hydro_Mobil.Models.LoginProfil
+
         <h1>Welcome</h1>
 
 @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "login-form", action = "/Login" }))
 {
-            <input type="text" placeholder="Username" name="UserName" id="UserName">
-            <input type="password" placeholder="Password" name="PassWord" id="PassWord">
-            <input type="submit" name="button" id="button" value="Login">
-}
-    </div>
+        <table width="420" height="130" border="0">
+            <tr>
+                <td width="132">@Html.LabelFor(f => f.UserName)</td>
+                <td width="11" align="center">:</td>
+                <td width="255">@Html.TextBoxFor(f => f.UserName, new { title = "UserName", @Value = @ViewBag.user })</td>
+            </tr>
+            <tr>
+                <td>@Html.LabelFor(f => f.Password)</td>
+                <td align="center">:</td>
+                <td>@Html.PasswordFor(f => f.Password, new { title = "PassWord", @Value = @ViewBag.password })</td>
+            </tr>
+            <tr>
+                <td colspan="3" align="center">
+                    <input type="submit" name="button" id="button" value="Login">
+                </td>
+            </tr>
+        </table>
 
-    <ul class="bg-bubbles">
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-    </ul>
-</div>
+}

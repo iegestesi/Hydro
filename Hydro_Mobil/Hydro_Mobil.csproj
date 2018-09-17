@@ -152,11 +152,12 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Information.cs" />
     <Compile Include="Models\csSettings.cs" />
-    <Compile Include="Models\HydroMobil.cs" />
     <Compile Include="Models\LoginProfil.cs" />
     <Compile Include="Models\Members.cs" />
+    <Compile Include="Models\TablolarContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -174,6 +175,8 @@
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
     <Content Include="scripts\jquery-1.10.2.min.map" />
     <Content Include="Views\Home\MobilAutList.cshtml" />
+    <Content Include="Views\Home\MobilAuthControl.cshtml" />
+    <Content Include="Views\Home\LogOff.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

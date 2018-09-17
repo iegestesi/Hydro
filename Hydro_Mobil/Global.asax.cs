@@ -12,6 +12,13 @@ namespace Hydro_Mobil
     {
         protected void Application_Start()
         {
+            using (TablolarContext db = new TablolarContext())
+            {
+                //Aşağıda olan Method tablolarımız yoksa 
+                //veritabanında onu oluşturur kapalı olan ise veritabanını oluşturur.
+                db.Database.CreateIfNotExists();
+                db.Member.Create();
+            }
             AreaRegistration.RegisterAllAreas();
             RouteConfig.RegisterRoutes(RouteTable.Routes);
         }
