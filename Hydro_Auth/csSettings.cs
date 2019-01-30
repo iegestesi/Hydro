@@ -8,21 +8,39 @@ namespace Hydro_Auth
 {
     public class csSettings
     {
-        public int PrimaryKey { get; set; }
-        public string ClientID { get; set; }
-        public string ClientSecret { get; set; }
-        public string ApplicationID { get; set; }
-        public string Hydro_ID { get; set; }
-        public string AccesToken { get; set; }
-        public string RefreshToken { get; set; }
-        public string UrlSandBoxToken { get; set; }
-        public string UrlApiToken { get; set; }
-        public string PostSandBox { get; set; }
-        public string PostApi { get; set; }
-        public string ApiGetVerify { get; set; }
-        public string ApiSandBoxVerify { get; set; }
-        public string Message { get; set; }
-        public string ErrorMessage { get; set; }
-        public string Demo { get; set; }
+
+        public int PrimaryKey { get { return _PrimaryKey; } }
+        public string ClientID { get { return _ClientID; } }
+        public string ClientSecret { get { return _ClientSecret; } }
+        public string ApplicationID { get { return _ApplicationID; } }
+        public string Hydro_ID { get { return _Hydro_ID; } }
+        public string AccesToken { get { return _AccesToken; } }
+        public string RefreshToken { get { return _RefreshToken; } }
+        public string UrlSandBoxToken { get { return _UrlSandBoxToken; } }
+        public string UrlApiToken { get { return _UrlApiToken; } }
+        public string PostSandBox { get { return _PostSandBox; } }
+        public string PostApi { get { return _PostApi; } }
+        public string ApiGetVerify { get { return _ApiGetVerify; } }
+        public string ApiSandBoxVerify { get { return _ApiSandBoxVerify; } }
+        public string Message { get { return _Message; } }
+        public string ErrorMessage { get { return _ErrorMessage; } }
+        public string Demo { get { return _Demo; } }
+
+        public int _PrimaryKey { get; set; }
+        public string _ClientID { get; set; }
+        public string _ClientSecret { get; set; }
+        public string _ApplicationID { get; set; }
+        public string _Hydro_ID { get; set; }
+        public string _AccesToken { get; set; }
+        public string _RefreshToken { get; set; }
+        public string _UrlSandBoxToken { get; set; }
+        public string _UrlApiToken { get; set; }
+        public string _PostSandBox { get; set; }
+        public string _PostApi { get; set; }
+        public string _ApiGetVerify { get; set; }
+        public string _ApiSandBoxVerify { get; set; }
+        public string _Message { get; set; }
+        public string _ErrorMessage { get; set; }
+        public string _Demo { get; set; }
     }
 }

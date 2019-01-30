@@ -50,7 +50,7 @@ namespace Hydro_Auth
                     {
                         dynamic jsonResponseText = streamReader.ReadToEnd();
                         RefreshTokenResultJSON jsonResult = new System.Web.Script.Serialization.JavaScriptSerializer().Deserialize(jsonResponseText, typeof(RefreshTokenResultJSON));
-                        cSettings[0].AccesToken = jsonResult.access_token;
+                        cSettings[0]._AccesToken = jsonResult.access_token;
                     }
                 }
                 blnResult = true;
@@ -211,21 +211,21 @@ namespace Hydro_Auth
         public static List<csSettings> cSettings = new List<csSettings>
             {
                 new csSettings {
-                    PrimaryKey = 1,
-                    ClientID = WebConfigurationManager.AppSettings["ClientID"].ToString(),
-                    ClientSecret = WebConfigurationManager.AppSettings["ClientSecret"].ToString(),
-                    ApplicationID = WebConfigurationManager.AppSettings["ApplicationID"].ToString(),
-                    Hydro_ID = "",
-                    AccesToken = "",
-                    RefreshToken = "",
-                    UrlSandBoxToken = "https://sandbox.hydrogenplatform.com/authorization/v1/oauth/token?grant_type=client_credentials",
-                    UrlApiToken = "https://api.hydrogenplatform.com/authorization/v1/oauth/token?grant_type=client_credentials",
-                    PostSandBox = "https://sandbox.hydrogenplatform.com/hydro/v1/application/client",
-                    PostApi = "https://api.hydrogenplatform.com/hydro/v1/application/client",
-                    ApiGetVerify = "https://api.hydrogenplatform.com/hydro/v1/verify_signature",
-                    ApiSandBoxVerify = "https://sandbox.hydrogenplatform.com/hydro/v1/verify_signature",
-                    Message = "",
-                    Demo = WebConfigurationManager.AppSettings["Demo"].ToString()
+                    _PrimaryKey = 1,
+                    _ClientID = WebConfigurationManager.AppSettings["ClientID"].ToString(),
+                    _ClientSecret = WebConfigurationManager.AppSettings["ClientSecret"].ToString(),
+                    _ApplicationID = WebConfigurationManager.AppSettings["ApplicationID"].ToString(),
+                    _Hydro_ID = "",
+                    _AccesToken = "",
+                    _RefreshToken = "",
+                    _UrlSandBoxToken = "https://sandbox.hydrogenplatform.com/authorization/v1/oauth/token?grant_type=client_credentials",
+                    _UrlApiToken = "https://api.hydrogenplatform.com/authorization/v1/oauth/token?grant_type=client_credentials",
+                    _PostSandBox = "https://sandbox.hydrogenplatform.com/hydro/v1/application/client",
+                    _PostApi = "https://api.hydrogenplatform.com/hydro/v1/application/client",
+                    _ApiGetVerify = "https://api.hydrogenplatform.com/hydro/v1/verify_signature",
+                    _ApiSandBoxVerify = "https://sandbox.hydrogenplatform.com/hydro/v1/verify_signature",
+                    _Message = "",
+                    _Demo = WebConfigurationManager.AppSettings["Demo"].ToString()
                 }
             };
     }

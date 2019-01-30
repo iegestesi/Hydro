@@ -99,8 +99,8 @@ namespace Hydro_Mobil.Controllers
         {
             if (string.IsNullOrEmpty(Auth.cSettings[0].Message.ToString()))
             {
-                Auth.cSettings[0].Message = Auth.GenerateMessage();
-                Auth.cSettings[0].ErrorMessage = "";
+                Auth.cSettings[0]._Message = Auth.GenerateMessage();
+                Auth.cSettings[0]._ErrorMessage = "";
             }
             ViewBag.Message = Auth.cSettings[0].Message;
             ViewBag.ErrorMessage = Auth.cSettings[0].ErrorMessage;
@@ -119,7 +119,7 @@ namespace Hydro_Mobil.Controllers
                 var Kontrol = dbs.LoginKontrol(LoginCookie["UserName"].ToString(), LoginCookie["Password"].ToString()).ToList();
                 if (Kontrol.Count > 0)
                 {
-                    Auth.cSettings[0].Hydro_ID = Kontrol[0].HydroID;
+                    Auth.cSettings[0]._Hydro_ID = Kontrol[0].HydroID;
                 }
 
                 if (string.IsNullOrEmpty(Auth.cSettings[0].AccesToken))
@@ -129,14 +129,14 @@ namespace Hydro_Mobil.Controllers
 
                 if (Auth.GetVerifyMessage(Auth.cSettings[0].Hydro_ID, strApiSandBox, Auth.cSettings[0].Message, out strMessage))
                 {
-                    Auth.cSettings[0].Message = strMessage;
+                    Auth.cSettings[0]._Message = strMessage;
                     return RedirectToAction("MobilAutList");
                 }
                 else
                 {
                     if (Convert.ToBoolean(LoginCookie["Auth"].ToString()))
                     {
-                        Auth.cSettings[0].ErrorMessage = " We were unable to verify the code entered on the blockchain. Please enter again on the Hydro mobile app and re-authenticate below.";
+                        Auth.cSettings[0]._ErrorMessage = " We were unable to verify the code entered on the blockchain. Please enter again on the Hydro mobile app and re-authenticate below.";
                         return RedirectToAction("MobilAuthControl");
                     }
                     else
@@ -168,24 +168,24 @@ namespace Hydro_Mobil.Controllers
         public ActionResult MobilAdd(FormCollection frm)
         {
             strApiSandBox = frm["ApiSandBox"].ToString();
-            Auth.cSettings[0].Demo = strApiSandBox;
+            Auth.cSettings[0]._Demo = strApiSandBox;
             
             if (ModelState.IsValid)
             {
                 if (Auth.GetAccesToken(strApiSandBox, out strMessage))
                 {
-                    Auth.cSettings[0].Hydro_ID = frm["HydroID"].ToString();
+                    Auth.cSettings[0]._Hydro_ID = frm["HydroID"].ToString();
 
                     if (Auth.AutAdd(Auth.cSettings[0].Hydro_ID, strApiSandBox, out strMessage))
                     {
-                        Auth.cSettings[0].Message = strMessage;
+                        Auth.cSettings[0]._Message = strMessage;
                         ViewBag.Message = Auth.cSettings[0].Message;
 
                         return RedirectToAction("MobilAuth");
                     }
                     else
                     {
-                        Auth.cSettings[0].ErrorMessage = strMessage;
+                        Auth.cSettings[0]._ErrorMessage = strMessage;
                         return RedirectToAction("MobilAdd");
                     }
                 }
@@ -232,7 +232,7 @@ namespace Hydro_Mobil.Controllers
                     LoginCookie["Auth"] = Kontrol[0].Auth.ToString();
                     if (Auth.cSettings[0].Hydro_ID.ToString() == "-" || string.IsNullOrEmpty(Auth.cSettings[0].Hydro_ID.ToString()))
                     {
-                        Auth.cSettings[0].Hydro_ID = Kontrol[0].HydroID;
+                        Auth.cSettings[0]._Hydro_ID = Kontrol[0].HydroID;
                     }
                 }
 
@@ -243,7 +243,7 @@ namespace Hydro_Mobil.Controllers
 
                 if (Auth.GetVerifyMessage(Auth.cSettings[0].Hydro_ID, strApiSandBox, Auth.cSettings[0].Message, out strMessage))
                 {
-                    Auth.cSettings[0].Message = strMessage;
+                    Auth.cSettings[0]._Message = strMessage;
 
                     if(!Convert.ToBoolean(LoginCookie["Auth"].ToString()))
                     {
@@ -254,7 +254,7 @@ namespace Hydro_Mobil.Controllers
                 }
                 else
                 {
-                    Auth.cSettings[0].ErrorMessage = "We were unable to verify the code entered on the blockchain. Please enter again on the Hydro mobile app and re-authenticate below.";
+                    Auth.cSettings[0]._ErrorMessage = "We were unable to verify the code entered on the blockchain. Please enter again on the Hydro mobile app and re-authenticate below.";
                     ViewBag.ErrorMessage = Auth.cSettings[0].ErrorMessage.ToString();
                     return RedirectToAction("MobilAuth");
                 }
@@ -297,13 +297,13 @@ namespace Hydro_Mobil.Controllers
                         var Kontrol = dbs.LoginKontrol(LoginCookie["UserName"].ToString(), LoginCookie["Password"].ToString()).ToList();
                         if (Kontrol.Count > 0)
                         {
-                            Auth.cSettings[0].Hydro_ID = Kontrol[0].HydroID;
+                            Auth.cSettings[0]._Hydro_ID = Kontrol[0].HydroID;
                             users.MembersID = Kontrol[0].MembersID;
                         }
 
                         if (Auth.GetDeleteApi(Auth.cSettings[0].Hydro_ID, strApiSandBox, out strMessage))
                         {
-                            Auth.cSettings[0].ErrorMessage = strMessage;
+                            Auth.cSettings[0]._ErrorMessage = strMessage;
                             ViewBag.ErrorMessage = Auth.cSettings[0].ErrorMessage;
 
                             dbs.MembersHydroEdit(users.MembersID, "-", false);
@@ -311,14 +311,14 @@ namespace Hydro_Mobil.Controllers
                         }
                         else
                         {
-                            Auth.cSettings[0].ErrorMessage = strMessage;
+                            Auth.cSettings[0]._ErrorMessage = strMessage;
                             ViewBag.ErrorMessage = Auth.cSettings[0].ErrorMessage;
                             return RedirectToAction("MobilAutList");
                         }
                     }
                     else
                     {
-                        Auth.cSettings[0].ErrorMessage = strMessage;
+                        Auth.cSettings[0]._ErrorMessage = strMessage;
                         ViewBag.ErrorMessage = Auth.cSettings[0].ErrorMessage;
 
                         return RedirectToAction("MobilAutList");
@@ -337,7 +337,7 @@ namespace Hydro_Mobil.Controllers
             LoginCookie.Expires = DateTime.Now.AddDays(-1);
             Response.Cookies.Add(LoginCookie);
             ViewBag.Title = "Hydro Auth";
-            Auth.cSettings[0].Message = "";
+            Auth.cSettings[0]._Message = "";
             return RedirectToAction("Login");
         }
     }
